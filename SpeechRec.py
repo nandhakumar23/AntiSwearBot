@@ -15,3 +15,12 @@ except sr.UnknownValueError:
 except sr.RequestError as e:
     print("Sphinx error; {0}".format(e))
 
+f = open("wit_api.txt", "r")
+WIT_AI_KEY = f.read()
+
+try:
+    print("Wit.ai thinks you said " + r.recognize_wit(audio, key=WIT_AI_KEY))
+except sr.UnknownValueError:
+    print("Wit.ai could not understand audio")
+except sr.RequestError as e:
+    print("Could not request results from Wit.ai service; {0}".format(e))

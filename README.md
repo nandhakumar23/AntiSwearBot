@@ -1,3 +1,9 @@
+Wit.AI API key:
+
+Add the api key to a file named wit_key.txt to the source directory
+
+
+
 Docs to Read for installation:
 
 https://pypi.org/project/pocketsphinx/
