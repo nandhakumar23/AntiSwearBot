@@ -30,27 +30,43 @@ client.on('message', async (message) => {
 
         isInVoice = true;
         // Create a ReadableStream of s16le PCM audio
-        const audio = connection.receiver.createStream(user, { mode: 'opus' });
+        const receiver = connection.receiver.createStream(message.member, {
+            mode: "pcm",
+            end: "silence"
+        });
 
-        audio.pipe(fs.createWriteStream('user_audio'));
-
-        audio
-            .on("data", (chunk) => console.log(chunk))
-            .on("close", () => console.log("close"))
-            .on("error", (e) => console.log(e))
-            .on("readable", () => console.log("readable"))
-            .on("close", () => console.log("closed"));
-
-        //connection.play(audio, { type: 'opus' });
+        const writer = receiver.pipe(fs.createWriteStream(`./recorded-${message.author.id}.pcm`));
+        writer.on("finish", () => {
+            message.member.voice.channel.leave();
+            message.channel.send("Finished writing audio");
+        });
     }
 
-    if(isInVoice && message.content === 'Run it back'){
+    if(message.content === 'Run it back'){ // temp command to re-play the listen to the audio that u just said.
         //connection.play('user_audio', {mode: 'opus'});
+
+        const voicechannel = message.member.voice.channel;
+
+        if (!fs.existsSync(`./recorded-${message.author.id}.pcm`)) return message.channel.send("Your audio is not recorded!");
+
+        const connection = await message.member.voice.channel.join();
+        const stream = fs.createReadStream(`./recorded-${message.author.id}.pcm`);
+
+        const dispatcher = connection.play(stream, {
+            type: "converted"
+        });
+
+        dispatcher.on("finish", () => {
+            message.member.voice.channel.leave();
+            return message.channel.send("finished playing audio");
+        })
+
     }
 
     if(isInVoice && message.content === 'dc'){
         connection.disconnect();
         connection = null
+        console.log("cleared");
     }
 
 });
