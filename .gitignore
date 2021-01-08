@@ -1,3 +1,5 @@
 
 wit_api.txt
 disc_config.json
+*.pcm
+*.wav
